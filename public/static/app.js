@@ -186,6 +186,48 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('previewModal').classList.add('hidden');
     });
 
+    // Document save functionality
+    document.getElementById('saveDocument')?.addEventListener('click', async function() {
+        const formData = collectFormData();
+        
+        // Validate required fields
+        if (!formData.customer.name || !formData.document.issueDate || formData.items.length === 0) {
+            alert('必須項目を入力してください。');
+            return;
+        }
+        
+        // Additional validation for receipt
+        if (formData.type === 'receipt' && !formData.document.receiptItem) {
+            alert('領収書では領収項目の入力が必須です。');
+            return;
+        }
+
+        try {
+            const response = await fetch('/api/documents', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData)
+            });
+
+            const result = await response.json();
+            
+            if (result.success) {
+                alert('書類が正常に保存されました。');
+                // Optionally redirect to history page
+                if (confirm('履歴ページで確認しますか？')) {
+                    window.location.href = '/history';
+                }
+            } else {
+                alert('エラーが発生しました: ' + result.message);
+            }
+        } catch (error) {
+            alert('ネットワークエラーが発生しました。');
+            console.error('Error:', error);
+        }
+    });
+
     // PDF generation
     document.getElementById('generatePDF')?.addEventListener('click', async function() {
         const formData = collectFormData();
