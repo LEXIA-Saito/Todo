@@ -172,6 +172,13 @@ app.get('/form', (c) => {
                       <input type="date" id="dueDate" class="w-full border border-gray-300 rounded px-3 py-2 focus:ring-2 focus:ring-gray-900 focus:border-transparent" />
                     </div>
                   )}
+                  {type === 'receipt' && (
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700 mb-1">領収項目 *</label>
+                      <input type="text" id="receiptItem" class="w-full border border-gray-300 rounded px-3 py-2 focus:ring-2 focus:ring-gray-900 focus:border-transparent" placeholder="例：お品、工事費、サービス料" required />
+                      <p class="text-xs text-gray-500 mt-1">「○○代として」の○○部分に表示されます</p>
+                    </div>
+                  )}
                 </div>
               </div>
 

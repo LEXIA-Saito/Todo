@@ -195,6 +195,12 @@ document.addEventListener('DOMContentLoaded', function() {
             alert('必須項目を入力してください。');
             return;
         }
+        
+        // Additional validation for receipt
+        if (formData.type === 'receipt' && !formData.document.receiptItem) {
+            alert('領収書では領収項目の入力が必須です。');
+            return;
+        }
 
         try {
             // Generate PDF using jsPDF
@@ -238,7 +244,8 @@ document.addEventListener('DOMContentLoaded', function() {
             document: {
                 number: document.getElementById('documentNumber')?.value || '',
                 issueDate: document.getElementById('issueDate')?.value || '',
-                dueDate: document.getElementById('dueDate')?.value || ''
+                dueDate: document.getElementById('dueDate')?.value || '',
+                receiptItem: document.getElementById('receiptItem')?.value || 'お品'
             },
             items: items,
             notes: document.getElementById('notes')?.value || '',
@@ -307,12 +314,14 @@ document.addEventListener('DOMContentLoaded', function() {
                         <div class="text-lg font-bold mb-2">合計金額</div>
                         <div class="text-3xl font-black">¥${data.totals.total.toLocaleString('ja-JP')}−</div>
                     </div>
-                    <div class="mt-4 text-sm text-gray-600">
-                        ${data.customer.zip || data.customer.address ? '但し' : ''}
-                        <span class="ml-12">お品代</span>
-                        <span class="ml-12">として</span>
-                    </div>
-                    <div class="text-xs text-gray-600 mt-1">上記正に領収いたしました。</div>
+                    ${data.type === 'receipt' ? `
+                        <div class="mt-4 text-sm text-gray-600">
+                            但し
+                            <span class="ml-12">${data.document.receiptItem}代</span>
+                            <span class="ml-12">として</span>
+                        </div>
+                        <div class="text-xs text-gray-600 mt-1">上記正に領収いたしました。</div>
+                    ` : ''}
                 </div>
 
                 <!-- Items Table -->
@@ -407,13 +416,6 @@ document.addEventListener('DOMContentLoaded', function() {
                         <div class="text-xs mb-0.5">${companyInfo.address}</div>
                         <div class="text-xs mb-0.5">${companyInfo.tel}</div>
                         <div class="text-xs mb-4">${companyInfo.email}</div>
-                        
-                        <!-- Company Seal Area -->
-                        <div class="w-12 h-12 border-2 border-red-500 rounded-full ml-auto relative bg-white">
-                            <div class="absolute inset-0 flex items-center justify-center text-xs text-red-500 font-bold leading-tight">
-                                LEXIA<br/>印
-                            </div>
-                        </div>
                     </div>
                 </div>
 
@@ -631,13 +633,6 @@ document.addEventListener('DOMContentLoaded', function() {
                         <div style="font-size: 10px; margin-bottom: 2px;">${companyInfo.address}</div>
                         <div style="font-size: 10px; margin-bottom: 2px;">${companyInfo.tel}</div>
                         <div style="font-size: 10px; margin-bottom: 15px;">${companyInfo.email}</div>
-                        
-                        <!-- Company Seal Area -->
-                        <div style="width: 60px; height: 60px; border: 2px solid #ff0000; border-radius: 50%; margin: 10px 0 0 auto; position: relative; background: white;">
-                            <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 8px; color: #ff0000; font-weight: bold; text-align: center; line-height: 1.2;">
-                                LEXIA<br/>印
-                            </div>
-                        </div>
                     </div>
                 </div>
 
