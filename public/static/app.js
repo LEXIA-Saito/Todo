@@ -300,8 +300,14 @@ document.addEventListener('DOMContentLoaded', function() {
                     </div>
                 </div>
 
-                <!-- Customer Name -->
+                <!-- Customer Name and Address -->
                 <div class="mb-10">
+                    ${data.customer.zip || data.customer.address ? `
+                        <div class="mb-4 text-sm leading-relaxed">
+                            ${data.customer.zip ? `<div>${data.customer.zip}</div>` : ''}
+                            ${data.customer.address ? `<div>${data.customer.address}</div>` : ''}
+                        </div>
+                    ` : ''}
                     <div class="border-b-2 border-black pb-3 mb-5">
                         <span class="text-2xl font-bold">${data.customer.name}</span>
                         <span class="text-xl ml-5">御中</span>
@@ -516,8 +522,14 @@ document.addEventListener('DOMContentLoaded', function() {
                     </div>
                 </div>
 
-                <!-- Customer Name -->
+                <!-- Customer Name and Address -->
                 <div style="margin-bottom: 40px;">
+                    ${data.customer.zip || data.customer.address ? `
+                        <div style="margin-bottom: 15px; font-size: 14px; line-height: 1.5;">
+                            ${data.customer.zip ? `<div>${data.customer.zip}</div>` : ''}
+                            ${data.customer.address ? `<div>${data.customer.address}</div>` : ''}
+                        </div>
+                    ` : ''}
                     <div style="border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 20px;">
                         <span style="font-size: 24px; font-weight: bold; color: #000;">${data.customer.name}</span>
                         <span style="font-size: 20px; margin-left: 20px;">御中</span>
