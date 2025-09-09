@@ -275,105 +275,155 @@ document.addEventListener('DOMContentLoaded', function() {
         };
 
         return `
-            <div class="max-w-4xl mx-auto bg-white" style="font-family: 'Helvetica', 'Arial', sans-serif;">
+            <div class="max-w-4xl mx-auto bg-white p-10" style="font-family: 'Yu Gothic', 'Helvetica', 'Arial', sans-serif;">
                 <!-- Header -->
-                <div class="text-center border-b-2 border-black pb-4 mb-6">
-                    <h1 class="text-3xl font-bold mb-2">${typeName}</h1>
-                    ${data.document.number ? `<p class="text-lg">No. ${data.document.number}</p>` : ''}
-                </div>
-
-                <!-- Company and Customer Info -->
-                <div class="grid grid-cols-2 gap-8 mb-8">
-                    <!-- Customer Info -->
-                    <div>
-                        <h3 class="font-bold mb-2 border-b border-black pb-1">宛先</h3>
-                        <div class="space-y-1">
-                            ${data.customer.zip ? `<p>${data.customer.zip}</p>` : ''}
-                            ${data.customer.address ? `<p>${data.customer.address}</p>` : ''}
-                            <p class="text-lg font-bold">${data.customer.name} 様</p>
-                        </div>
-                    </div>
-
-                    <!-- Company Info -->
-                    <div class="text-right">
-                        <h3 class="font-bold mb-2 border-b border-black pb-1">発行者</h3>
-                        <div class="space-y-1">
-                            <p class="text-lg font-bold">${companyInfo.name}</p>
-                            <p>${companyInfo.zip}</p>
-                            <p>${companyInfo.address}</p>
-                            <p>${companyInfo.tel}</p>
-                            <p>${companyInfo.email}</p>
+                <div class="relative mb-16">
+                    <h1 class="text-4xl font-black tracking-wider">${typeName}</h1>
+                    <div class="absolute top-0 right-0 text-right">
+                        ${data.document.number ? `
+                            <div class="mb-2">
+                                <span class="text-gray-500 text-sm">No.</span>
+                                <span class="font-bold ml-5">${data.document.number}</span>
+                            </div>
+                        ` : ''}
+                        <div>
+                            <span class="text-gray-500 text-sm">発行日</span>
+                            <span class="font-bold ml-5">${data.document.issueDate}</span>
                         </div>
                     </div>
                 </div>
 
-                <!-- Document Details -->
-                <div class="grid grid-cols-2 gap-8 mb-6">
-                    <div>
-                        <p><span class="font-bold">発行日:</span> ${data.document.issueDate}</p>
-                        ${data.document.dueDate && data.type === 'invoice' ? 
-                            `<p><span class="font-bold">支払期限:</span> ${data.document.dueDate}</p>` : ''}
+                <!-- Customer Name -->
+                <div class="mb-10">
+                    <div class="border-b-2 border-black pb-3 mb-5">
+                        <span class="text-2xl font-bold">${data.customer.name}</span>
+                        <span class="text-xl ml-5">御中</span>
                     </div>
-                    <div class="text-right">
-                        <div class="bg-gray-100 p-4 rounded">
-                            <p class="text-2xl font-bold">合計金額: ¥${data.totals.total.toLocaleString('ja-JP')}</p>
-                        </div>
+                </div>
+
+                <!-- Total Amount -->
+                <div class="mb-10">
+                    <div class="text-left">
+                        <div class="text-lg font-bold mb-2">合計金額</div>
+                        <div class="text-3xl font-black">¥${data.totals.total.toLocaleString('ja-JP')}−</div>
                     </div>
+                    <div class="mt-4 text-sm text-gray-600">
+                        ${data.customer.zip || data.customer.address ? '但し' : ''}
+                        <span class="ml-12">お品代</span>
+                        <span class="ml-12">として</span>
+                    </div>
+                    <div class="text-xs text-gray-600 mt-1">上記正に領収いたしました。</div>
                 </div>
 
                 <!-- Items Table -->
-                <div class="mb-8">
-                    <table class="w-full border border-black">
+                <div class="mb-10">
+                    <table class="w-full">
                         <thead>
-                            <tr class="bg-gray-200">
-                                <th class="border border-black px-4 py-2 text-left">項目</th>
-                                <th class="border border-black px-4 py-2 text-center">数量</th>
-                                <th class="border border-black px-4 py-2 text-right">単価</th>
-                                <th class="border border-black px-4 py-2 text-right">金額</th>
+                            <tr class="bg-black text-white">
+                                <th class="px-3 py-3 text-left text-sm font-bold">内容</th>
+                                <th class="px-3 py-3 text-center text-sm font-bold w-20">数量</th>
+                                <th class="px-3 py-3 text-center text-sm font-bold w-24">単価</th>
+                                <th class="px-3 py-3 text-center text-sm font-bold w-24">金額</th>
                             </tr>
                         </thead>
                         <tbody>
-                            ${data.items.map(item => `
-                                <tr>
-                                    <td class="border border-black px-4 py-2">${item.name}</td>
-                                    <td class="border border-black px-4 py-2 text-center">${item.quantity}</td>
-                                    <td class="border border-black px-4 py-2 text-right">¥${item.unitPrice.toLocaleString('ja-JP')}</td>
-                                    <td class="border border-black px-4 py-2 text-right">¥${item.amount.toLocaleString('ja-JP')}</td>
+                            ${data.items.map((item, index) => `
+                                <tr class="border-b border-gray-300">
+                                    <td class="px-3 py-3 text-sm">${item.name}</td>
+                                    <td class="px-3 py-3 text-center text-sm">${item.quantity}</td>
+                                    <td class="px-3 py-3 text-right text-sm">${item.unitPrice.toLocaleString('ja-JP')}</td>
+                                    <td class="px-3 py-3 text-right text-sm">${item.amount.toLocaleString('ja-JP')}</td>
+                                </tr>
+                            `).join('')}
+                            ${Array.from({length: Math.max(0, 6 - data.items.length)}, () => `
+                                <tr class="border-b border-gray-300">
+                                    <td class="px-3 py-3 text-sm">&nbsp;</td>
+                                    <td class="px-3 py-3 text-center text-sm">&nbsp;</td>
+                                    <td class="px-3 py-3 text-right text-sm">&nbsp;</td>
+                                    <td class="px-3 py-3 text-right text-sm">&nbsp;</td>
                                 </tr>
                             `).join('')}
                         </tbody>
-                        <tfoot>
-                            <tr>
-                                <td colspan="3" class="border border-black px-4 py-2 text-right font-bold">小計</td>
-                                <td class="border border-black px-4 py-2 text-right font-bold">¥${data.totals.subtotal.toLocaleString('ja-JP')}</td>
-                            </tr>
-                            <tr>
-                                <td colspan="3" class="border border-black px-4 py-2 text-right">消費税(10%)</td>
-                                <td class="border border-black px-4 py-2 text-right">¥${data.totals.tax.toLocaleString('ja-JP')}</td>
-                            </tr>
-                            <tr class="bg-gray-200">
-                                <td colspan="3" class="border border-black px-4 py-2 text-right font-bold text-lg">合計</td>
-                                <td class="border border-black px-4 py-2 text-right font-bold text-lg">¥${data.totals.total.toLocaleString('ja-JP')}</td>
-                            </tr>
-                        </tfoot>
                     </table>
                 </div>
 
-                <!-- Notes -->
-                ${data.notes ? `
-                    <div class="mb-8">
-                        <h3 class="font-bold mb-2 border-b border-black pb-1">備考</h3>
-                        <p class="whitespace-pre-line">${data.notes}</p>
+                <!-- Tax Details -->
+                <div class="mb-10">
+                    <div class="border-t-2 border-black pt-4">
+                        <div class="text-xs text-gray-600 mb-4">※軽減税率対象</div>
+                        
+                        <div class="grid grid-cols-12 gap-2 text-sm">
+                            <div class="col-span-6"></div>
+                            <div class="col-span-3 text-right">10%対象</div>
+                            <div class="col-span-3 text-right">${data.totals.subtotal.toLocaleString('ja-JP')}</div>
+                        </div>
+                        <div class="grid grid-cols-12 gap-2 text-sm mt-1">
+                            <div class="col-span-6 text-xs text-gray-600">
+                                ${data.document.dueDate && data.type === 'invoice' ? `注文日：${data.document.issueDate}` : ''}
+                            </div>
+                            <div class="col-span-3 text-right">消費税</div>
+                            <div class="col-span-3 text-right">${data.totals.tax.toLocaleString('ja-JP')}</div>
+                        </div>
+                        <div class="grid grid-cols-12 gap-2 text-sm mt-1">
+                            <div class="col-span-6 text-xs text-gray-600">
+                                ${data.document.number ? `注文番号：${data.document.number}` : ''}
+                            </div>
+                            <div class="col-span-3 text-right">源泉税対象</div>
+                            <div class="col-span-3 text-right">0</div>
+                        </div>
+                        <div class="grid grid-cols-12 gap-2 text-sm mt-1">
+                            <div class="col-span-6 text-xs text-gray-600">
+                                支払方法：${data.type === 'receipt' ? '現金' : '銀行振込'}
+                            </div>
+                            <div class="col-span-3 text-right">消費税</div>
+                            <div class="col-span-3 text-right">0</div>
+                        </div>
+                        <div class="grid grid-cols-12 gap-2 text-sm mt-1 bg-black text-white p-2">
+                            <div class="col-span-6"></div>
+                            <div class="col-span-3 text-right font-bold">合計</div>
+                            <div class="col-span-3 text-right font-bold">${data.totals.total.toLocaleString('ja-JP')}</div>
+                        </div>
                     </div>
-                ` : ''}
+                </div>
 
-                <!-- Bank Info (for invoices) -->
+                <!-- Footer -->
+                <div class="flex justify-between items-start mt-16">
+                    <!-- Left side - Notes -->
+                    <div class="w-2/5">
+                        <div class="text-xs font-bold mb-1">特記事項</div>
+                        ${data.notes ? `
+                            <div class="text-xs leading-relaxed">${data.notes}</div>
+                        ` : `
+                            <div class="text-xs leading-relaxed">
+                                ${data.type === 'invoice' ? '銀行振込の場合、振込手数料はご負担ください。' : 'ありがとうございました。'}
+                            </div>
+                        `}
+                    </div>
+
+                    <!-- Right side - Company Info -->
+                    <div class="w-2/5 text-right">
+                        <div class="text-lg font-bold mb-1">${companyInfo.name}</div>
+                        <div class="text-xs mb-0.5">${companyInfo.zip}</div>
+                        <div class="text-xs mb-0.5">${companyInfo.address}</div>
+                        <div class="text-xs mb-0.5">${companyInfo.tel}</div>
+                        <div class="text-xs mb-4">${companyInfo.email}</div>
+                        
+                        <!-- Company Seal Area -->
+                        <div class="w-12 h-12 border-2 border-red-500 rounded-full ml-auto relative bg-white">
+                            <div class="absolute inset-0 flex items-center justify-center text-xs text-red-500 font-bold leading-tight">
+                                LEXIA<br/>印
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bank Info (for invoices only) -->
                 ${data.type === 'invoice' ? `
-                    <div class="border-t border-black pt-4">
-                        <h3 class="font-bold mb-2">振込先</h3>
-                        <p>${companyInfo.bank}</p>
-                        <p>${companyInfo.accountName}</p>
-                        <p class="text-sm text-gray-600 mt-2">口座番号は別途ご連絡いたします。</p>
+                    <div class="mt-10 pt-5 border-t border-gray-300">
+                        <div class="text-xs font-bold mb-1">振込先</div>
+                        <div class="text-xs">${companyInfo.bank}</div>
+                        <div class="text-xs">${companyInfo.accountName}</div>
+                        <div class="text-xs text-gray-600 mt-1">口座番号は別途ご連絡いたします。</div>
                     </div>
                 ` : ''}
             </div>
@@ -446,108 +496,158 @@ document.addEventListener('DOMContentLoaded', function() {
         };
 
         return `
-            <div style="font-family: 'Helvetica', 'Arial', sans-serif; font-size: 12px; line-height: 1.4; color: #000;">
+            <div style="font-family: 'Yu Gothic', 'Helvetica', 'Arial', sans-serif; background: white; padding: 40px; max-width: 800px; margin: 0 auto;">
                 <!-- Header -->
-                <div style="text-align: center; border-bottom: 2px solid #000; padding-bottom: 15px; margin-bottom: 20px;">
-                    <h1 style="font-size: 28px; font-weight: bold; margin: 0 0 10px 0;">${typeName}</h1>
-                    ${data.document.number ? `<p style="font-size: 16px; margin: 0;">No. ${data.document.number}</p>` : ''}
+                <div style="position: relative; margin-bottom: 60px;">
+                    <h1 style="font-size: 36px; font-weight: 900; margin: 0; color: #000; letter-spacing: 2px;">${typeName}</h1>
+                    <div style="position: absolute; top: 0; right: 0; text-align: right;">
+                        ${data.document.number ? `
+                            <div style="margin-bottom: 8px;">
+                                <span style="font-size: 14px; color: #666;">No.</span>
+                                <span style="font-size: 16px; font-weight: bold; margin-left: 20px;">${data.document.number}</span>
+                            </div>
+                        ` : ''}
+                        <div>
+                            <span style="font-size: 14px; color: #666;">発行日</span>
+                            <span style="font-size: 16px; font-weight: bold; margin-left: 20px;">${data.document.issueDate}</span>
+                        </div>
+                    </div>
                 </div>
 
-                <!-- Company and Customer Info -->
-                <table style="width: 100%; margin-bottom: 25px;">
-                    <tr>
-                        <td style="width: 50%; vertical-align: top;">
-                            <div style="border-bottom: 1px solid #000; padding-bottom: 5px; margin-bottom: 10px;">
-                                <strong>宛先</strong>
-                            </div>
-                            ${data.customer.zip ? `<p style="margin: 3px 0;">${data.customer.zip}</p>` : ''}
-                            ${data.customer.address ? `<p style="margin: 3px 0;">${data.customer.address}</p>` : ''}
-                            <p style="font-size: 16px; font-weight: bold; margin: 8px 0;">${data.customer.name} 様</p>
-                        </td>
-                        <td style="width: 50%; text-align: right; vertical-align: top;">
-                            <div style="border-bottom: 1px solid #000; padding-bottom: 5px; margin-bottom: 10px;">
-                                <strong>発行者</strong>
-                            </div>
-                            <p style="font-size: 16px; font-weight: bold; margin: 3px 0;">${companyInfo.name}</p>
-                            <p style="margin: 3px 0;">${companyInfo.zip}</p>
-                            <p style="margin: 3px 0;">${companyInfo.address}</p>
-                            <p style="margin: 3px 0;">${companyInfo.tel}</p>
-                            <p style="margin: 3px 0;">${companyInfo.email}</p>
-                        </td>
-                    </tr>
-                </table>
+                <!-- Customer Name -->
+                <div style="margin-bottom: 40px;">
+                    <div style="border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 20px;">
+                        <span style="font-size: 24px; font-weight: bold; color: #000;">${data.customer.name}</span>
+                        <span style="font-size: 20px; margin-left: 20px;">御中</span>
+                    </div>
+                </div>
 
-                <!-- Document Details and Total -->
-                <table style="width: 100%; margin-bottom: 20px;">
-                    <tr>
-                        <td style="width: 50%; vertical-align: top;">
-                            <p style="margin: 5px 0;"><strong>発行日:</strong> ${data.document.issueDate}</p>
-                            ${data.document.dueDate && data.type === 'invoice' ? 
-                                `<p style="margin: 5px 0;"><strong>支払期限:</strong> ${data.document.dueDate}</p>` : ''}
-                        </td>
-                        <td style="width: 50%; text-align: right; vertical-align: top;">
-                            <div style="background-color: #f0f0f0; padding: 15px; border: 1px solid #000;">
-                                <p style="font-size: 20px; font-weight: bold; margin: 0;">合計金額: ¥${data.totals.total.toLocaleString('ja-JP')}</p>
-                            </div>
-                        </td>
-                    </tr>
-                </table>
+                <!-- Total Amount -->
+                <div style="margin-bottom: 40px;">
+                    <div style="text-align: left;">
+                        <div style="font-size: 18px; font-weight: bold; margin-bottom: 5px;">合計金額</div>
+                        <div style="font-size: 32px; font-weight: 900; color: #000;">¥${data.totals.total.toLocaleString('ja-JP')}−</div>
+                    </div>
+                    <div style="margin-top: 15px; font-size: 14px; color: #666;">
+                        ${data.customer.zip || data.customer.address ? '但し' : ''}
+                        <span style="margin-left: 50px;">お品代</span>
+                        <span style="margin-left: 50px;">として</span>
+                    </div>
+                    <div style="font-size: 12px; color: #666; margin-top: 5px;">上記正に領収いたしました。</div>
+                </div>
 
                 <!-- Items Table -->
-                <table style="width: 100%; border-collapse: collapse; margin-bottom: 25px; border: 1px solid #000;">
-                    <thead>
-                        <tr style="background-color: #e5e5e5;">
-                            <th style="border: 1px solid #000; padding: 8px; text-align: left; font-weight: bold;">項目</th>
-                            <th style="border: 1px solid #000; padding: 8px; text-align: center; font-weight: bold; width: 15%;">数量</th>
-                            <th style="border: 1px solid #000; padding: 8px; text-align: right; font-weight: bold; width: 20%;">単価</th>
-                            <th style="border: 1px solid #000; padding: 8px; text-align: right; font-weight: bold; width: 20%;">金額</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${data.items.map(item => `
-                            <tr>
-                                <td style="border: 1px solid #000; padding: 8px;">${item.name}</td>
-                                <td style="border: 1px solid #000; padding: 8px; text-align: center;">${item.quantity}</td>
-                                <td style="border: 1px solid #000; padding: 8px; text-align: right;">¥${item.unitPrice.toLocaleString('ja-JP')}</td>
-                                <td style="border: 1px solid #000; padding: 8px; text-align: right;">¥${item.amount.toLocaleString('ja-JP')}</td>
+                <div style="margin-bottom: 40px;">
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="background-color: #000; color: white;">
+                                <th style="padding: 12px 8px; text-align: left; font-size: 14px; font-weight: bold;">内容</th>
+                                <th style="padding: 12px 8px; text-align: center; font-size: 14px; font-weight: bold; width: 80px;">数量</th>
+                                <th style="padding: 12px 8px; text-align: center; font-size: 14px; font-weight: bold; width: 100px;">単価</th>
+                                <th style="padding: 12px 8px; text-align: center; font-size: 14px; font-weight: bold; width: 100px;">金額</th>
                             </tr>
-                        `).join('')}
-                    </tbody>
-                    <tfoot>
-                        <tr>
-                            <td colspan="3" style="border: 1px solid #000; padding: 8px; text-align: right; font-weight: bold;">小計</td>
-                            <td style="border: 1px solid #000; padding: 8px; text-align: right; font-weight: bold;">¥${data.totals.subtotal.toLocaleString('ja-JP')}</td>
-                        </tr>
-                        <tr>
-                            <td colspan="3" style="border: 1px solid #000; padding: 8px; text-align: right;">消費税(10%)</td>
-                            <td style="border: 1px solid #000; padding: 8px; text-align: right;">¥${data.totals.tax.toLocaleString('ja-JP')}</td>
-                        </tr>
-                        <tr style="background-color: #e5e5e5;">
-                            <td colspan="3" style="border: 1px solid #000; padding: 8px; text-align: right; font-weight: bold; font-size: 14px;">合計</td>
-                            <td style="border: 1px solid #000; padding: 8px; text-align: right; font-weight: bold; font-size: 14px;">¥${data.totals.total.toLocaleString('ja-JP')}</td>
-                        </tr>
-                    </tfoot>
-                </table>
+                        </thead>
+                        <tbody>
+                            ${data.items.map((item, index) => `
+                                <tr style="border-bottom: 1px solid #ddd;">
+                                    <td style="padding: 12px 8px; font-size: 14px;">${item.name}</td>
+                                    <td style="padding: 12px 8px; text-align: center; font-size: 14px;">${item.quantity}</td>
+                                    <td style="padding: 12px 8px; text-align: right; font-size: 14px;">${item.unitPrice.toLocaleString('ja-JP')}</td>
+                                    <td style="padding: 12px 8px; text-align: right; font-size: 14px;">${item.amount.toLocaleString('ja-JP')}</td>
+                                </tr>
+                            `).join('')}
+                            <!-- Empty rows for spacing -->
+                            ${Array.from({length: Math.max(0, 6 - data.items.length)}, () => `
+                                <tr style="border-bottom: 1px solid #ddd;">
+                                    <td style="padding: 12px 8px; font-size: 14px;">&nbsp;</td>
+                                    <td style="padding: 12px 8px; text-align: center; font-size: 14px;">&nbsp;</td>
+                                    <td style="padding: 12px 8px; text-align: right; font-size: 14px;">&nbsp;</td>
+                                    <td style="padding: 12px 8px; text-align: right; font-size: 14px;">&nbsp;</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
 
-                <!-- Notes -->
-                ${data.notes ? `
-                    <div style="margin-bottom: 25px;">
-                        <div style="border-bottom: 1px solid #000; padding-bottom: 5px; margin-bottom: 10px;">
-                            <strong>備考</strong>
-                        </div>
-                        <p style="white-space: pre-line; margin: 0; line-height: 1.5;">${data.notes}</p>
+                <!-- Tax Details -->
+                <div style="margin-bottom: 40px;">
+                    <div style="border-top: 2px solid #000; padding-top: 15px;">
+                        <div style="font-size: 12px; color: #666; margin-bottom: 15px;">※軽減税率対象</div>
+                        
+                        <table style="width: 100%; font-size: 14px;">
+                            <tr>
+                                <td style="width: 60%;"></td>
+                                <td style="text-align: right; padding: 5px 15px;">10%対象</td>
+                                <td style="text-align: right; padding: 5px 0; width: 100px;">${data.totals.subtotal.toLocaleString('ja-JP')}</td>
+                            </tr>
+                            <tr>
+                                <td style="font-size: 12px; color: #666;">
+                                    ${data.document.dueDate && data.type === 'invoice' ? `注文日：${data.document.issueDate}` : ''}
+                                </td>
+                                <td style="text-align: right; padding: 5px 15px;">消費税</td>
+                                <td style="text-align: right; padding: 5px 0;">${data.totals.tax.toLocaleString('ja-JP')}</td>
+                            </tr>
+                            <tr>
+                                <td style="font-size: 12px; color: #666;">
+                                    ${data.document.number ? `注文番号：${data.document.number}` : ''}
+                                </td>
+                                <td style="text-align: right; padding: 5px 15px;">源泉税対象</td>
+                                <td style="text-align: right; padding: 5px 0;">0</td>
+                            </tr>
+                            <tr>
+                                <td style="font-size: 12px; color: #666;">
+                                    支払方法：${data.type === 'receipt' ? '現金' : '銀行振込'}
+                                </td>
+                                <td style="text-align: right; padding: 5px 15px;">消費税</td>
+                                <td style="text-align: right; padding: 5px 0;">0</td>
+                            </tr>
+                            <tr style="background-color: #000; color: white;">
+                                <td style="padding: 8px 0;"></td>
+                                <td style="text-align: right; padding: 8px 15px; font-weight: bold;">合計</td>
+                                <td style="text-align: right; padding: 8px 0; font-weight: bold;">${data.totals.total.toLocaleString('ja-JP')}</td>
+                            </tr>
+                        </table>
                     </div>
-                ` : ''}
+                </div>
 
-                <!-- Bank Info (for invoices) -->
-                ${data.type === 'invoice' ? `
-                    <div style="border-top: 1px solid #000; padding-top: 15px;">
-                        <div style="margin-bottom: 10px;">
-                            <strong>振込先</strong>
+                <!-- Footer -->
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-top: 60px;">
+                    <!-- Left side - Notes -->
+                    <div style="width: 45%;">
+                        <div style="font-size: 12px; font-weight: bold; margin-bottom: 5px;">特記事項</div>
+                        ${data.notes ? `
+                            <div style="font-size: 11px; line-height: 1.4;">${data.notes}</div>
+                        ` : `
+                            <div style="font-size: 11px; line-height: 1.4;">
+                                ${data.type === 'invoice' ? '銀行振込の場合、振込手数料はご負担ください。' : 'ありがとうございました。'}
+                            </div>
+                        `}
+                    </div>
+
+                    <!-- Right side - Company Info -->
+                    <div style="width: 45%; text-align: right;">
+                        <div style="font-size: 16px; font-weight: bold; margin-bottom: 5px;">${companyInfo.name}</div>
+                        <div style="font-size: 10px; margin-bottom: 2px;">${companyInfo.zip}</div>
+                        <div style="font-size: 10px; margin-bottom: 2px;">${companyInfo.address}</div>
+                        <div style="font-size: 10px; margin-bottom: 2px;">${companyInfo.tel}</div>
+                        <div style="font-size: 10px; margin-bottom: 15px;">${companyInfo.email}</div>
+                        
+                        <!-- Company Seal Area -->
+                        <div style="width: 60px; height: 60px; border: 2px solid #ff0000; border-radius: 50%; margin: 10px 0 0 auto; position: relative; background: white;">
+                            <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 8px; color: #ff0000; font-weight: bold; text-align: center; line-height: 1.2;">
+                                LEXIA<br/>印
+                            </div>
                         </div>
-                        <p style="margin: 3px 0;">${companyInfo.bank}</p>
-                        <p style="margin: 3px 0;">${companyInfo.accountName}</p>
-                        <p style="font-size: 10px; color: #666; margin-top: 8px;">口座番号は別途ご連絡いたします。</p>
+                    </div>
+                </div>
+
+                <!-- Bank Info (for invoices only) -->
+                ${data.type === 'invoice' ? `
+                    <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #ddd;">
+                        <div style="font-size: 12px; font-weight: bold; margin-bottom: 5px;">振込先</div>
+                        <div style="font-size: 11px;">${companyInfo.bank}</div>
+                        <div style="font-size: 11px;">${companyInfo.accountName}</div>
+                        <div style="font-size: 10px; color: #666; margin-top: 5px;">口座番号は別途ご連絡いたします。</div>
                     </div>
                 ` : ''}
             </div>
