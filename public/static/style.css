@@ -1,1 +1,121 @@
-h1 { font-family: Arial, Helvetica, sans-serif; }
+/* Custom styles for invoice generator */
+body {
+    font-family: 'Helvetica', 'Arial', sans-serif;
+    background-color: #f9fafb;
+}
+
+/* Form styling */
+.form-container {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+}
+
+/* Button styles */
+.btn-primary {
+    background-color: #1f2937;
+    color: white;
+    padding: 12px 24px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.btn-primary:hover {
+    background-color: #111827;
+}
+
+.btn-secondary {
+    background-color: #6b7280;
+    color: white;
+    padding: 12px 24px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.btn-secondary:hover {
+    background-color: #4b5563;
+}
+
+/* Input focus states */
+input:focus, textarea:focus, select:focus {
+    outline: none;
+    ring: 2px;
+    ring-color: #1f2937;
+    border-color: transparent;
+}
+
+/* Table styles for preview */
+.preview-table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+.preview-table th,
+.preview-table td {
+    border: 1px solid #000;
+    padding: 8px 12px;
+    text-align: left;
+}
+
+.preview-table th {
+    background-color: #f3f4f6;
+    font-weight: bold;
+}
+
+/* Print styles */
+@media print {
+    body {
+        background: white;
+    }
+    
+    .no-print {
+        display: none !important;
+    }
+    
+    .print-container {
+        max-width: none;
+        margin: 0;
+        padding: 20px;
+    }
+}
+
+/* Modal styles */
+.modal-overlay {
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+/* Responsive grid adjustments */
+@media (max-width: 768px) {
+    .item-row {
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+    
+    .item-row > div {
+        grid-column: span 1 !important;
+    }
+}
+
+/* Animation for smooth transitions */
+.transition-all {
+    transition: all 0.2s ease-in-out;
+}
+
+/* Loading spinner */
+.spinner {
+    border: 2px solid #f3f3f3;
+    border-top: 2px solid #1f2937;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
