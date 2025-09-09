@@ -30,10 +30,9 @@ document.addEventListener('DOMContentLoaded', function() {
             address: '愛知県西尾市一色町松木島中切6'
         },
         'ryuki-kogyo': {
-            name: '琉希工業株式会社',
-            zip: '〒444-0214',
-            address: '愛知県岡崎市国正町字上川田44',
-            altAddress: '愛知県岡崎市土井町字辻10'
+            name: '琉輝工業株式会社',
+            zip: '〒444-0204',
+            address: '愛知県岡崎市土井町字辻10'
         },
         'nakamura-kenkouin': {
             name: '中村健康院',
@@ -42,33 +41,50 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     };
 
-    // Customer selection functionality
-    const customerSelect = document.getElementById('customerSelect');
+    // Customer search and selection functionality
+    const customerSearch = document.getElementById('customerSearch');
     const customerNameInput = document.getElementById('customerName');
     const customerZipInput = document.getElementById('customerZip');
     const customerAddressInput = document.getElementById('customerAddress');
 
-    if (customerSelect) {
-        customerSelect.addEventListener('change', function() {
-            const selectedValue = this.value;
-            if (selectedValue && predefinedCustomers[selectedValue]) {
-                const customer = predefinedCustomers[selectedValue];
-                customerNameInput.value = customer.name;
+    // Create a reverse lookup for customer names to IDs
+    const customerNameToId = {};
+    for (const [id, customer] of Object.entries(predefinedCustomers)) {
+        customerNameToId[customer.name] = id;
+    }
+
+    if (customerSearch && customerNameInput) {
+        // Update customer name field when search field changes
+        customerSearch.addEventListener('input', function() {
+            const searchValue = this.value.trim();
+            
+            // Always update the customer name field
+            customerNameInput.value = searchValue;
+            
+            // Check if it matches a predefined customer
+            const customerId = customerNameToId[searchValue];
+            if (customerId && predefinedCustomers[customerId]) {
+                const customer = predefinedCustomers[customerId];
                 customerZipInput.value = customer.zip;
-                
-                // Handle special case for Ryuki Kogyo with multiple addresses
-                if (selectedValue === 'ryuki-kogyo') {
-                    const addressChoice = confirm(
-                        '琉希工業株式会社の住所を選択してください:\n\n' +
-                        'OK: 愛知県岡崎市国正町字上川田44\n' +
-                        'キャンセル: 愛知県岡崎市土井町字辻10'
-                    );
-                    customerAddressInput.value = addressChoice ? customer.address : customer.altAddress;
-                } else {
-                    customerAddressInput.value = customer.address;
-                }
+                customerAddressInput.value = customer.address;
+            } else {
+                // Clear address fields for new customers (but keep the name)
+                if (customerZipInput) customerZipInput.value = '';
+                if (customerAddressInput) customerAddressInput.value = '';
             }
-            // If empty value is selected, don't clear the fields to allow manual input
+        });
+
+        // Also handle selection from datalist
+        customerSearch.addEventListener('change', function() {
+            const searchValue = this.value.trim();
+            customerNameInput.value = searchValue;
+            
+            const customerId = customerNameToId[searchValue];
+            if (customerId && predefinedCustomers[customerId]) {
+                const customer = predefinedCustomers[customerId];
+                customerZipInput.value = customer.zip;
+                customerAddressInput.value = customer.address;
+            }
         });
     }
 

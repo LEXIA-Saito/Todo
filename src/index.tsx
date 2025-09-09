@@ -108,23 +108,30 @@ app.get('/form', (c) => {
                   お客様情報
                 </h3>
                 
-                {/* 顧客選択 */}
+                {/* 顧客選択・検索 */}
                 <div class="mb-4 bg-blue-50 p-4 rounded-lg border border-blue-200">
                   <label class="block text-sm font-medium text-gray-700 mb-1">
-                    <i class="fas fa-users mr-1"></i>既存顧客から選択
+                    <i class="fas fa-search mr-1"></i>顧客検索・選択
                   </label>
-                  <select id="customerSelect" class="w-full border border-gray-300 rounded px-3 py-2 focus:ring-2 focus:ring-gray-900 focus:border-transparent">
-                    <option value="">-- 既存顧客から選択してください --</option>
-                    <option value="mino-kenchiku">みの建築</option>
-                    <option value="ja-life">株式会社 JA.life</option>
-                    <option value="chubu-kaihatsu">中部開発株式会社</option>
-                    <option value="asaoka-pack">有限会社朝岡パック</option>
-                    <option value="ryuki-kogyo">琉希工業株式会社</option>
-                    <option value="nakamura-kenkouin">中村健康院</option>
-                  </select>
+                  <input 
+                    type="text" 
+                    id="customerSearch" 
+                    class="w-full border border-gray-300 rounded px-3 py-2 focus:ring-2 focus:ring-gray-900 focus:border-transparent" 
+                    placeholder="顧客名を入力して検索、または新規で会社名を入力"
+                    list="customerList"
+                    autocomplete="off"
+                  />
+                  <datalist id="customerList">
+                    <option value="みの建築">みの建築</option>
+                    <option value="株式会社 JA.life">株式会社 JA.life</option>
+                    <option value="中部開発株式会社">中部開発株式会社</option>
+                    <option value="有限会社朝岡パック">有限会社朝岡パック</option>
+                    <option value="琉輝工業株式会社">琉輝工業株式会社</option>
+                    <option value="中村健康院">中村健康院</option>
+                  </datalist>
                   <p class="text-xs text-gray-500 mt-1">
                     <i class="fas fa-info-circle mr-1"></i>
-                    既存顧客を選択するか、下記フィールドに直接入力してください
+                    既存顧客を入力すると住所が自動入力されます。新規顧客の場合はそのまま会社名として使用されます。
                   </p>
                 </div>
 
