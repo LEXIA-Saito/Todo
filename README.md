@@ -1,21 +1,146 @@
-```txt
-npm install
-npm run dev
+# 書類作成システム - LEXIA
+
+## プロジェクト概要
+- **名前**: 書類作成システム (Invoice Generator)
+- **目標**: 請求書、領収書、見積書を簡単に作成し、PDF出力できるWEBアプリケーション
+- **特徴**: モノクロ基調のシンプルなデザイン、直感的な操作、PDF自動生成
+
+## URL
+- **本番環境**: https://3000-ik3bq04qyrq71mlfp4262-6532622b.e2b.dev
+- **ローカル**: http://localhost:3000
+
+## 現在完了している機能
+
+### ✅ 基本機能
+1. **ホーム画面**: 3種類の書類（請求書・領収書・見積書）選択
+2. **フォーム入力**: 顧客情報、書類情報、項目詳細の入力
+3. **動的計算**: 数量×単価の自動計算、消費税10%自動計算、合計金額表示
+4. **項目管理**: 項目の追加・削除、複数項目対応
+5. **プレビュー機能**: 入力データのリアルタイムプレビュー
+6. **PDF生成**: jsPDF + html2canvasを使用したPDF出力機能
+
+### ✅ UI/UX
+- モノクロ基調のシンプルなデザイン
+- TailwindCSSによるレスポンシブデザイン
+- 直感的なフォームレイアウト
+- 項目追加・削除の動的操作
+
+### ✅ 会社情報統合
+- LEXIA社の情報がテンプレートに組み込み済み
+  - 会社名: LEXIA
+  - 住所: 〒447-0817 愛知県碧南市川端町1-45
+  - 連絡先: TEL 090-1742-3456, lexia0web@gmail.com
+  - 振込先: 愛知県中央信用組合 みなみ支店 普通（口座名義：齋藤雅人）
+
+## 機能詳細URI
+
+### メインページ
+- **GET /**: ホーム画面（書類選択）
+
+### フォームページ  
+- **GET /form?type=invoice**: 請求書作成フォーム
+- **GET /form?type=receipt**: 領収書作成フォーム
+- **GET /form?type=quote**: 見積書作成フォーム
+
+### API エンドポイント
+- **POST /api/generate-pdf**: PDF生成API（現在フロントエンド処理）
+
+### 静的ファイル
+- **GET /static/app.js**: メインJavaScript
+- **GET /static/style.css**: カスタムCSS
+
+## データ構造
+
+### フォームデータ構造
+```javascript
+{
+  type: 'invoice|receipt|quote',
+  customer: {
+    name: '顧客名',
+    zip: '郵便番号',
+    address: '住所'
+  },
+  document: {
+    number: '書類番号',
+    issueDate: '発行日',
+    dueDate: '支払期限（請求書のみ）'
+  },
+  items: [
+    {
+      name: '項目名',
+      quantity: 数量,
+      unitPrice: 単価,
+      amount: 金額
+    }
+  ],
+  notes: '備考',
+  totals: {
+    subtotal: 小計,
+    tax: 消費税,
+    total: 合計
+  }
+}
 ```
 
-```txt
-npm run deploy
+## 使用技術
+- **バックエンド**: Hono Framework (TypeScript)
+- **フロントエンド**: Vanilla JavaScript + TailwindCSS
+- **PDF生成**: jsPDF + html2canvas
+- **プラットフォーム**: Cloudflare Pages/Workers
+- **開発環境**: PM2 + Wrangler
+
+## 簡単な使い方
+
+1. **ホーム画面で書類種類を選択**
+   - 請求書、領収書、見積書から選択
+
+2. **顧客情報入力**
+   - 会社名・お名前（必須）
+   - 郵便番号、住所（任意）
+
+3. **書類情報入力**
+   - 書類番号（任意）
+   - 発行日（必須、デフォルトで今日の日付）
+   - 支払期限（請求書のみ）
+
+4. **項目詳細入力**
+   - 項目名、数量、単価を入力
+   - 金額は自動計算
+   - 「＋項目を追加」ボタンで複数項目対応
+
+5. **プレビュー・PDF生成**
+   - 「プレビュー」ボタンで内容確認
+   - 「PDF生成」ボタンでPDFダウンロード
+
+## 未実装機能
+
+### 🔄 今後の改善項目
+1. **データ永続化**: Cloudflare D1による書類履歴保存
+2. **テンプレートカスタマイズ**: レイアウト・デザインの選択機能
+3. **印刷最適化**: 印刷専用レイアウト
+4. **バリデーション強化**: フォーム入力検証
+5. **エクスポート機能**: Excel形式での出力
+6. **顧客管理**: 顧客情報の保存・再利用
+
+### 🛠 次の開発推奨ステップ
+1. Cloudflare D1データベース統合による履歴機能
+2. 顧客情報テンプレート機能
+3. 書類番号の自動採番機能
+4. より詳細な項目管理（税率カスタマイズ等）
+
+## デプロイメント
+
+### 現在のステータス
+- ✅ 開発環境: 稼働中
+- ❌ 本番環境: 未デプロイ
+
+### 本番デプロイ手順
+```bash
+npm run build
+wrangler pages deploy dist --project-name webapp
 ```
 
-[For generating/synchronizing types based on your Worker configuration run](https://developers.cloudflare.com/workers/wrangler/commands/#types):
-
-```txt
-npm run cf-typegen
-```
-
-Pass the `CloudflareBindings` as generics when instantiation `Hono`:
-
-```ts
-// src/index.ts
-const app = new Hono<{ Bindings: CloudflareBindings }>()
-```
+## 最終更新
+**日付**: 2024年9月9日
+**バージョン**: v1.0.0
+**開発者**: LEXIA - 齋藤雅人
