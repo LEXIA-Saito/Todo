@@ -126,7 +126,7 @@ app.get('/form', (c) => {
                     <option value="株式会社 JA.life">株式会社 JA.life</option>
                     <option value="中部開発株式会社">中部開発株式会社</option>
                     <option value="有限会社朝岡パック">有限会社朝岡パック</option>
-                    <option value="琉輝工業株式会社">琉輝工業株式会社</option>
+                    <option value="琉希工業株式会社">琉希工業株式会社</option>
                     <option value="中村健康院">中村健康院</option>
                   </datalist>
                   <p class="text-xs text-gray-500 mt-1">

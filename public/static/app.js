@@ -30,7 +30,7 @@ document.addEventListener('DOMContentLoaded', function() {
             address: '愛知県西尾市一色町松木島中切6'
         },
         'ryuki-kogyo': {
-            name: '琉輝工業株式会社',
+            name: '琉希工業株式会社',
             zip: '〒444-0204',
             address: '愛知県岡崎市土井町字辻10'
         },
