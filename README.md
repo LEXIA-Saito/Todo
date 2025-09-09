@@ -6,8 +6,8 @@
 - **特徴**: モノクロ基調のシンプルなデザイン、直感的な操作、PDF自動生成
 
 ## URL
-- **本番環境**: https://lexia-invoice-generator.pages.dev
-- **デプロイ済み**: https://9b6df534.lexia-invoice-generator.pages.dev
+- **本番環境（最新）**: https://52208977.lexia-invoice-generator.pages.dev
+- **過去のデプロイ**: https://lexia-invoice-generator.pages.dev, https://9b6df534.lexia-invoice-generator.pages.dev
 - **開発環境**: https://3000-ik3bq04qyrq71mlfp4262-6532622b.e2b.dev
 - **ローカル**: http://localhost:3000
 
@@ -22,6 +22,14 @@
 6. **項目管理**: 項目の追加・削除、複数項目対応
 7. **プレビュー機能**: 入力データのリアルタイムプレビュー
 8. **PDF生成**: jsPDF + html2canvasを使用したプロフェッショナルなPDF出力機能
+
+### ✅ データベース・履歴機能（NEW！）
+9. **D1データベース統合**: Cloudflare D1 SQLiteによる書類データの永続化
+10. **履歴表示機能**: 過去に作成した請求書・領収書・見積書の一覧表示
+11. **書類検索・フィルタ**: 顧客名での検索、書類タイプでのフィルタリング
+12. **ページネーション**: 大量の書類も快適に閲覧可能
+13. **書類詳細表示**: 保存済み書類の詳細情報とPDF再生成機能
+14. **自動保存**: 作成した書類を自動的にデータベースに保存
 
 ### ✅ 事前登録顧客（住所・郵便番号付き）
 - **みの建築** - 〒447-0056 愛知県碧南市千福町6-8
@@ -56,14 +64,54 @@
 - **GET /form?type=receipt**: 領収書作成フォーム
 - **GET /form?type=quote**: 見積書作成フォーム
 
+### 履歴・詳細ページ
+- **GET /history**: 書類履歴一覧ページ（検索・フィルタ・ページネーション）
+- **GET /document/:id**: 書類詳細表示ページ
+
 ### API エンドポイント
-- **POST /api/generate-pdf**: PDF生成API（現在フロントエンド処理）
+- **POST /api/documents**: 書類データの保存
+- **GET /api/documents**: 書類履歴取得（ページネーション・検索・フィルタ対応）
+- **GET /api/documents/:id**: 個別書類の詳細取得
 
 ### 静的ファイル
 - **GET /static/app.js**: メインJavaScript
 - **GET /static/style.css**: カスタムCSS
 
 ## データ構造
+
+### D1データベーススキーマ
+```sql
+-- documents テーブル（書類メイン情報）
+CREATE TABLE documents (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  document_type TEXT NOT NULL,
+  document_number TEXT,
+  customer_name TEXT NOT NULL,
+  customer_zip TEXT,
+  customer_address TEXT,
+  issue_date TEXT NOT NULL,
+  due_date TEXT,
+  receipt_item TEXT,
+  subtotal REAL NOT NULL,
+  tax_amount REAL NOT NULL,
+  total_amount REAL NOT NULL,
+  notes TEXT,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+-- document_items テーブル（明細項目）
+CREATE TABLE document_items (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  document_id INTEGER NOT NULL,
+  item_name TEXT NOT NULL,
+  quantity INTEGER NOT NULL,
+  unit_price REAL NOT NULL,
+  amount REAL NOT NULL,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (document_id) REFERENCES documents(id)
+);
+```
 
 ### フォームデータ構造
 ```javascript
@@ -98,6 +146,7 @@
 
 ## 使用技術
 - **バックエンド**: Hono Framework (TypeScript)
+- **データベース**: Cloudflare D1 SQLite (世界分散)
 - **フロントエンド**: Vanilla JavaScript + TailwindCSS
 - **PDF生成**: jsPDF + html2canvas
 - **プラットフォーム**: Cloudflare Pages/Workers
@@ -131,22 +180,29 @@
 6. **プレビュー・PDF生成**
    - 「プレビュー」ボタンで内容確認
    - 「PDF生成」ボタンでPDFダウンロード
+   - 「保存」ボタンで書類情報をデータベースに自動保存
+
+7. **履歴管理**（NEW！）
+   - ホーム画面から「履歴表示」で過去の書類を確認
+   - 顧客名での検索、書類タイプでのフィルタリング
+   - 任意の書類をクリックで詳細表示・PDF再生成可能
 
 ## 未実装機能
 
 ### 🔄 今後の改善項目
-1. **データ永続化**: Cloudflare D1による書類履歴保存
-2. **テンプレートカスタマイズ**: レイアウト・デザインの選択機能
-3. **印刷最適化**: 印刷専用レイアウト
-4. **バリデーション強化**: フォーム入力検証
-5. **エクスポート機能**: Excel形式での出力
-6. **顧客管理**: 顧客情報の保存・再利用
+1. **テンプレートカスタマイズ**: レイアウト・デザインの選択機能
+2. **印刷最適化**: 印刷専用レイアウト
+3. **バリデーション強化**: フォーム入力検証
+4. **エクスポート機能**: Excel形式での出力
+5. **顧客管理機能拡張**: 顧客情報の個別管理・編集機能
+6. **書類番号の自動採番**: インクリメンタルな書類番号生成
+7. **統計・レポート機能**: 売上分析、顧客別集計等
 
 ### 🛠 次の開発推奨ステップ
-1. Cloudflare D1データベース統合による履歴機能
-2. 顧客情報テンプレート機能
-3. 書類番号の自動採番機能
-4. より詳細な項目管理（税率カスタマイズ等）
+1. 顧客マスタ管理機能（D1データベース活用）
+2. 書類番号の自動採番システム
+3. より詳細な項目管理（税率カスタマイズ等）
+4. ダッシュボード機能（売上統計・グラフ表示）
 
 ## デプロイメント
 
@@ -168,6 +224,15 @@ npx wrangler pages deploy dist --project-name lexia-invoice-generator
 - **最終デプロイ**: 2024年9月9日
 
 ## 最終更新
-**日付**: 2024年9月9日
-**バージョン**: v2.3.0 - Cloudflare Pages本番デプロイ
+**日付**: 2025年9月9日
+**バージョン**: v3.0.0 - D1データベース統合・履歴機能完成
 **開発者**: LEXIA - 齋藤雅人
+
+### 主要な更新内容（v3.0.0）
+- ✅ Cloudflare D1 SQLiteデータベース統合
+- ✅ 書類履歴表示機能（検索・フィルタ・ページネーション）
+- ✅ 書類詳細表示・PDF再生成機能
+- ✅ 自動保存機能（作成した書類を自動的にDBに保存）
+- ✅ RESTful APIエンドポイントの実装
+- ✅ レスポンシブ対応の履歴UI/UX
+- ✅ 本番環境へのD1マイグレーション適用完了
