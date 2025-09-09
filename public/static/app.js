@@ -7,6 +7,59 @@ document.addEventListener('DOMContentLoaded', function() {
         issueDateInput.value = today;
     }
 
+    // Predefined customer data
+    const predefinedCustomers = {
+        'mino-kenchiku': {
+            name: 'みの建築',
+            zip: '',
+            address: ''
+        },
+        'ja-life': {
+            name: '株式会社 JA.life',
+            zip: '',
+            address: ''
+        },
+        'chubu-kaihatsu': {
+            name: '中部開発株式会社',
+            zip: '',
+            address: ''
+        },
+        'asaoka-pack': {
+            name: '有限会社朝岡パック',
+            zip: '',
+            address: ''
+        },
+        'ryuki-kogyo': {
+            name: '琉希工業株式会社',
+            zip: '',
+            address: ''
+        },
+        'nakamura-kenkouin': {
+            name: '中村健康院',
+            zip: '',
+            address: ''
+        }
+    };
+
+    // Customer selection functionality
+    const customerSelect = document.getElementById('customerSelect');
+    const customerNameInput = document.getElementById('customerName');
+    const customerZipInput = document.getElementById('customerZip');
+    const customerAddressInput = document.getElementById('customerAddress');
+
+    if (customerSelect) {
+        customerSelect.addEventListener('change', function() {
+            const selectedValue = this.value;
+            if (selectedValue && predefinedCustomers[selectedValue]) {
+                const customer = predefinedCustomers[selectedValue];
+                customerNameInput.value = customer.name;
+                customerZipInput.value = customer.zip;
+                customerAddressInput.value = customer.address;
+            }
+            // If empty value is selected, don't clear the fields to allow manual input
+        });
+    }
+
     // Item management
     let itemCounter = 1;
 

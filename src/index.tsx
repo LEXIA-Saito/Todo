@@ -107,6 +107,28 @@ app.get('/form', (c) => {
                 <h3 class="text-lg font-semibold text-gray-900 mb-4 border-b border-gray-200 pb-2">
                   お客様情報
                 </h3>
+                
+                {/* 顧客選択 */}
+                <div class="mb-4 bg-blue-50 p-4 rounded-lg border border-blue-200">
+                  <label class="block text-sm font-medium text-gray-700 mb-1">
+                    <i class="fas fa-users mr-1"></i>既存顧客から選択
+                  </label>
+                  <select id="customerSelect" class="w-full border border-gray-300 rounded px-3 py-2 focus:ring-2 focus:ring-gray-900 focus:border-transparent">
+                    <option value="">-- 既存顧客から選択してください --</option>
+                    <option value="mino-kenchiku">みの建築</option>
+                    <option value="ja-life">株式会社 JA.life</option>
+                    <option value="chubu-kaihatsu">中部開発株式会社</option>
+                    <option value="asaoka-pack">有限会社朝岡パック</option>
+                    <option value="ryuki-kogyo">琉希工業株式会社</option>
+                    <option value="nakamura-kenkouin">中村健康院</option>
+                  </select>
+                  <p class="text-xs text-gray-500 mt-1">
+                    <i class="fas fa-info-circle mr-1"></i>
+                    既存顧客を選択するか、下記フィールドに直接入力してください
+                  </p>
+                </div>
+
+                {/* 手動入力フィールド */}
                 <div class="grid md:grid-cols-2 gap-4">
                   <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">会社名・お名前 *</label>
