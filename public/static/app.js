@@ -11,33 +11,34 @@ document.addEventListener('DOMContentLoaded', function() {
     const predefinedCustomers = {
         'mino-kenchiku': {
             name: 'みの建築',
-            zip: '',
-            address: ''
+            zip: '〒447-0056',
+            address: '愛知県碧南市千福町6-8'
         },
         'ja-life': {
             name: '株式会社 JA.life',
-            zip: '',
-            address: ''
+            zip: '〒444-0312',
+            address: '愛知県西尾市国森町不動東71-3'
         },
         'chubu-kaihatsu': {
             name: '中部開発株式会社',
-            zip: '',
-            address: ''
+            zip: '〒447-0886',
+            address: '愛知県碧南市源氏町1-15-4'
         },
         'asaoka-pack': {
             name: '有限会社朝岡パック',
-            zip: '',
-            address: ''
+            zip: '〒444-0403',
+            address: '愛知県西尾市一色町松木島中切6'
         },
         'ryuki-kogyo': {
             name: '琉希工業株式会社',
-            zip: '',
-            address: ''
+            zip: '〒444-0214',
+            address: '愛知県岡崎市国正町字上川田44',
+            altAddress: '愛知県岡崎市土井町字辻10'
         },
         'nakamura-kenkouin': {
             name: '中村健康院',
-            zip: '',
-            address: ''
+            zip: '〒444-0305',
+            address: '愛知県西尾市平坂町帆平山55'
         }
     };
 
@@ -54,7 +55,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 const customer = predefinedCustomers[selectedValue];
                 customerNameInput.value = customer.name;
                 customerZipInput.value = customer.zip;
-                customerAddressInput.value = customer.address;
+                
+                // Handle special case for Ryuki Kogyo with multiple addresses
+                if (selectedValue === 'ryuki-kogyo') {
+                    const addressChoice = confirm(
+                        '琉希工業株式会社の住所を選択してください:\n\n' +
+                        'OK: 愛知県岡崎市国正町字上川田44\n' +
+                        'キャンセル: 愛知県岡崎市土井町字辻10'
+                    );
+                    customerAddressInput.value = addressChoice ? customer.address : customer.altAddress;
+                } else {
+                    customerAddressInput.value = customer.address;
+                }
             }
             // If empty value is selected, don't clear the fields to allow manual input
         });
