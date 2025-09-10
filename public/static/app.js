@@ -1,10 +1,29 @@
 // Invoice Generation App JavaScript
 document.addEventListener('DOMContentLoaded', function() {
-    // Set today's date as default
-    const today = new Date().toISOString().split('T')[0];
-    const issueDateInput = document.getElementById('issueDate');
-    if (issueDateInput) {
-        issueDateInput.value = today;
+    // Check if we're in edit mode
+    const editModeInput = document.getElementById('editMode');
+    const editDocumentIdInput = document.getElementById('editDocumentId');
+    const isEditMode = editModeInput && editModeInput.value === 'true';
+    const editDocumentId = editDocumentIdInput ? editDocumentIdInput.value : null;
+    
+    // Set today's date as default (only for new documents)
+    if (!isEditMode) {
+        const today = new Date().toISOString().split('T')[0];
+        const issueDateInput = document.getElementById('issueDate');
+        if (issueDateInput) {
+            issueDateInput.value = today;
+        }
+    }
+    
+    // Update save button text based on mode
+    const saveButton = document.getElementById('saveDocument');
+    if (saveButton && isEditMode) {
+        saveButton.textContent = '更新';
+    }
+    
+    // Load existing document data if in edit mode
+    if (isEditMode && editDocumentId) {
+        loadDocumentForEdit(editDocumentId);
     }
 
     // Predefined customer data
@@ -186,7 +205,7 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('previewModal').classList.add('hidden');
     });
 
-    // Document save functionality
+    // Document save/update functionality
     document.getElementById('saveDocument')?.addEventListener('click', async function() {
         const formData = collectFormData();
         
@@ -203,18 +222,33 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         try {
-            const response = await fetch('/api/documents', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(formData)
-            });
+            let response;
+            if (isEditMode && editDocumentId) {
+                // Update existing document
+                response = await fetch(`/api/documents/${editDocumentId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                });
+            } else {
+                // Create new document
+                response = await fetch('/api/documents', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                });
+            }
 
             const result = await response.json();
             
             if (result.success) {
-                alert('書類が正常に保存されました。');
+                const message = isEditMode ? '書類が正常に更新されました。' : '書類が正常に保存されました。';
+                alert(message + (result.documentNumber ? ` (書類番号: ${result.documentNumber})` : ''));
+                
                 // Optionally redirect to history page
                 if (confirm('履歴ページで確認しますか？')) {
                     window.location.href = '/history';
@@ -227,6 +261,78 @@ document.addEventListener('DOMContentLoaded', function() {
             console.error('Error:', error);
         }
     });
+    
+    // Function to load document data for editing
+    async function loadDocumentForEdit(documentId) {
+        try {
+            console.log('Loading document for edit:', documentId);
+            const response = await fetch(`/api/documents/${documentId}`);
+            const result = await response.json();
+            
+            if (result.success) {
+                const { document, items } = result.data;
+                console.log('Loaded document data:', document, items);
+                
+                // Fill form with existing data
+                fillFormWithData(document, items);
+            } else {
+                alert('書類の読み込みに失敗しました: ' + result.message);
+            }
+        } catch (error) {
+            alert('書類の読み込み中にエラーが発生しました。');
+            console.error('Error loading document:', error);
+        }
+    }
+    
+    // Function to fill form with existing document data
+    function fillFormWithData(document, items) {
+        // Fill customer information
+        const customerNameInput = document.getElementById('customerName');
+        const customerZipInput = document.getElementById('customerZip');
+        const customerAddressInput = document.getElementById('customerAddress');
+        
+        if (customerNameInput) customerNameInput.value = document.customer_name || '';
+        if (customerZipInput) customerZipInput.value = document.customer_zip || '';
+        if (customerAddressInput) customerAddressInput.value = document.customer_address || '';
+        
+        // Fill document information
+        const documentNumberInput = document.getElementById('documentNumber');
+        const issueDateInput = document.getElementById('issueDate');
+        const dueDateInput = document.getElementById('dueDate');
+        const receiptItemInput = document.getElementById('receiptItem');
+        const notesInput = document.getElementById('notes');
+        
+        if (documentNumberInput) documentNumberInput.value = document.document_number || '';
+        if (issueDateInput) issueDateInput.value = document.issue_date || '';
+        if (dueDateInput) dueDateInput.value = document.due_date || '';
+        if (receiptItemInput) receiptItemInput.value = document.receipt_item || '';
+        if (notesInput) notesInput.value = document.notes || '';
+        
+        // Clear existing items and add loaded items
+        const itemContainer = document.getElementById('itemList');
+        if (itemContainer && items.length > 0) {
+            itemContainer.innerHTML = '';
+            
+            items.forEach((item, index) => {
+                addItemRow();
+                const rows = itemContainer.getElementsByClassName('item-row');
+                const currentRow = rows[rows.length - 1];
+                
+                const itemNameInput = currentRow.querySelector('input[name="itemName"]');
+                const quantityInput = currentRow.querySelector('input[name="quantity"]');
+                const unitPriceInput = currentRow.querySelector('input[name="unitPrice"]');
+                const amountInput = currentRow.querySelector('input[name="amount"]');
+                
+                if (itemNameInput) itemNameInput.value = item.item_name || '';
+                if (quantityInput) quantityInput.value = item.quantity || 1;
+                if (unitPriceInput) unitPriceInput.value = item.unit_price || 0;
+                if (amountInput) amountInput.value = item.amount || 0;
+            });
+            
+            // Update totals
+            updateTotals();
+        }
+    }
 
     // PDF generation
     document.getElementById('generatePDF')?.addEventListener('click', async function() {

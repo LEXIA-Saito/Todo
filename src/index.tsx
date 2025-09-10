@@ -183,15 +183,17 @@ app.get('/document/:id', (c) => {
   )
 })
 
-// Form page for document creation
+// Form page for document creation and editing
 app.get('/form', (c) => {
   const type = c.req.query('type') || 'invoice'
+  const editId = c.req.query('edit') || null
   const typeNames = {
     invoice: '請求書',
     receipt: '領収書', 
     quote: '見積書'
   }
   const typeName = typeNames[type as keyof typeof typeNames] || '請求書'
+  const isEdit = editId ? true : false
 
   return c.render(
     <div class="min-h-screen bg-gray-50">
@@ -200,7 +202,7 @@ app.get('/form', (c) => {
           <div class="bg-white rounded-lg shadow-md">
             <div class="border-b border-gray-200 px-6 py-4">
               <div class="flex items-center justify-between">
-                <h2 class="text-2xl font-bold text-gray-900">{typeName}作成</h2>
+                <h2 class="text-2xl font-bold text-gray-900">{typeName}{isEdit ? '編集' : '作成'}</h2>
                 <a href="/" class="text-gray-600 hover:text-gray-900">
                   <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
@@ -211,6 +213,8 @@ app.get('/form', (c) => {
             
             <form id="documentForm" class="p-6">
               <input type="hidden" id="documentType" value={type} />
+              <input type="hidden" id="editMode" value={isEdit ? 'true' : 'false'} />
+              {editId && <input type="hidden" id="editDocumentId" value={editId} />}
               
               {/* 顧客情報 */}
               <div class="mb-8">
@@ -404,7 +408,23 @@ app.post('/api/documents', async (c) => {
     const { env } = c
     const formData = await c.req.json()
     
-    // Save document to database
+    // Get next document number for this type
+    const counterResult = await env.DB.prepare(`
+      SELECT current_number FROM document_counters WHERE document_type = ?
+    `).bind(formData.type).first()
+    
+    let nextNumber = 1
+    if (counterResult) {
+      nextNumber = counterResult.current_number + 1
+    }
+    
+    // Update counter
+    await env.DB.prepare(`
+      INSERT OR REPLACE INTO document_counters (document_type, current_number) 
+      VALUES (?, ?)
+    `).bind(formData.type, nextNumber).run()
+    
+    // Save document to database with auto-generated number
     const documentResult = await env.DB.prepare(`
       INSERT INTO documents 
       (document_type, document_number, customer_name, customer_zip, customer_address, 
@@ -412,7 +432,7 @@ app.post('/api/documents', async (c) => {
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `).bind(
       formData.type,
-      formData.document.number || null,
+      nextNumber.toString(),
       formData.customer.name,
       formData.customer.zip || null,
       formData.customer.address || null,
@@ -444,13 +464,76 @@ app.post('/api/documents', async (c) => {
     return c.json({ 
       success: true, 
       message: '書類が保存されました',
-      documentId: documentId
+      documentId: documentId,
+      documentNumber: nextNumber
     })
   } catch (error) {
     console.error('Error saving document:', error)
     return c.json({ 
       success: false, 
       message: '書類の保存中にエラーが発生しました' 
+    }, 500)
+  }
+})
+
+// API endpoint for updating documents
+app.put('/api/documents/:id', async (c) => {
+  try {
+    const { env } = c
+    const documentId = c.req.param('id')
+    const formData = await c.req.json()
+    
+    // Update document in database (keeping the same document_number)
+    await env.DB.prepare(`
+      UPDATE documents 
+      SET customer_name = ?, customer_zip = ?, customer_address = ?,
+          issue_date = ?, due_date = ?, receipt_item = ?,
+          subtotal = ?, tax_amount = ?, total_amount = ?, notes = ?,
+          updated_at = CURRENT_TIMESTAMP
+      WHERE id = ?
+    `).bind(
+      formData.customer.name,
+      formData.customer.zip || null,
+      formData.customer.address || null,
+      formData.document.issueDate,
+      formData.document.dueDate || null,
+      formData.document.receiptItem || null,
+      formData.totals.subtotal,
+      formData.totals.tax,
+      formData.totals.total,
+      formData.notes || null,
+      documentId
+    ).run()
+    
+    // Delete existing items
+    await env.DB.prepare(`
+      DELETE FROM document_items WHERE document_id = ?
+    `).bind(documentId).run()
+    
+    // Insert updated items
+    for (const item of formData.items) {
+      await env.DB.prepare(`
+        INSERT INTO document_items (document_id, item_name, quantity, unit_price, amount)
+        VALUES (?, ?, ?, ?, ?)
+      `).bind(
+        documentId,
+        item.name,
+        item.quantity,
+        item.unitPrice,
+        item.amount
+      ).run()
+    }
+    
+    return c.json({ 
+      success: true, 
+      message: '書類が更新されました',
+      documentId: documentId
+    })
+  } catch (error) {
+    console.error('Error updating document:', error)
+    return c.json({ 
+      success: false, 
+      message: '書類の更新中にエラーが発生しました' 
     }, 500)
   }
 })

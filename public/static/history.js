@@ -128,6 +128,9 @@ document.addEventListener('DOMContentLoaded', function() {
                         <a href="/document/${doc.id}" class="text-gray-900 hover:text-gray-700 mr-4">
                             <i class="fas fa-eye"></i> 詳細
                         </a>
+                        <a href="/form?type=${doc.document_type}&edit=${doc.id}" class="text-blue-600 hover:text-blue-800">
+                            <i class="fas fa-edit"></i> 編集
+                        </a>
                     </td>
                 </tr>
             `;
