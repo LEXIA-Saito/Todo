@@ -285,15 +285,18 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Function to fill form with existing document data
-    function fillFormWithData(document, items) {
+    function fillFormWithData(docData, items) {
+        console.log('Filling form with document data:', docData);
+        console.log('Items to fill:', items);
+        
         // Fill customer information
         const customerNameInput = document.getElementById('customerName');
         const customerZipInput = document.getElementById('customerZip');
         const customerAddressInput = document.getElementById('customerAddress');
         
-        if (customerNameInput) customerNameInput.value = document.customer_name || '';
-        if (customerZipInput) customerZipInput.value = document.customer_zip || '';
-        if (customerAddressInput) customerAddressInput.value = document.customer_address || '';
+        if (customerNameInput) customerNameInput.value = docData.customer_name || '';
+        if (customerZipInput) customerZipInput.value = docData.customer_zip || '';
+        if (customerAddressInput) customerAddressInput.value = docData.customer_address || '';
         
         // Fill document information
         const documentNumberInput = document.getElementById('documentNumber');
@@ -302,35 +305,63 @@ document.addEventListener('DOMContentLoaded', function() {
         const receiptItemInput = document.getElementById('receiptItem');
         const notesInput = document.getElementById('notes');
         
-        if (documentNumberInput) documentNumberInput.value = document.document_number || '';
-        if (issueDateInput) issueDateInput.value = document.issue_date || '';
-        if (dueDateInput) dueDateInput.value = document.due_date || '';
-        if (receiptItemInput) receiptItemInput.value = document.receipt_item || '';
-        if (notesInput) notesInput.value = document.notes || '';
+        if (documentNumberInput) documentNumberInput.value = docData.document_number || '';
+        if (issueDateInput) issueDateInput.value = docData.issue_date || '';
+        if (dueDateInput) dueDateInput.value = docData.due_date || '';
+        if (receiptItemInput) receiptItemInput.value = docData.receipt_item || '';
+        if (notesInput) notesInput.value = docData.notes || '';
         
         // Clear existing items and add loaded items
         const itemContainer = document.getElementById('itemList');
-        if (itemContainer && items.length > 0) {
+        if (itemContainer && items && items.length > 0) {
+            // Clear existing items first
             itemContainer.innerHTML = '';
             
+            console.log('Adding', items.length, 'items to form');
+            
             items.forEach((item, index) => {
-                addItemRow();
-                const rows = itemContainer.getElementsByClassName('item-row');
-                const currentRow = rows[rows.length - 1];
+                console.log('Processing item', index + 1, ':', item);
                 
-                const itemNameInput = currentRow.querySelector('input[name="itemName"]');
-                const quantityInput = currentRow.querySelector('input[name="quantity"]');
-                const unitPriceInput = currentRow.querySelector('input[name="unitPrice"]');
-                const amountInput = currentRow.querySelector('input[name="amount"]');
-                
-                if (itemNameInput) itemNameInput.value = item.item_name || '';
-                if (quantityInput) quantityInput.value = item.quantity || 1;
-                if (unitPriceInput) unitPriceInput.value = item.unit_price || 0;
-                if (amountInput) amountInput.value = item.amount || 0;
+                try {
+                    // Check if addItemRow function exists
+                    if (typeof addItemRow === 'function') {
+                        addItemRow();
+                        
+                        const rows = itemContainer.getElementsByClassName('item-row');
+                        if (rows.length > 0) {
+                            const currentRow = rows[rows.length - 1];
+                            
+                            const itemNameInput = currentRow.querySelector('input[name="itemName"]');
+                            const quantityInput = currentRow.querySelector('input[name="quantity"]');
+                            const unitPriceInput = currentRow.querySelector('input[name="unitPrice"]');
+                            const amountInput = currentRow.querySelector('input[name="amount"]');
+                            
+                            if (itemNameInput) itemNameInput.value = item.item_name || '';
+                            if (quantityInput) quantityInput.value = item.quantity || 1;
+                            if (unitPriceInput) unitPriceInput.value = item.unit_price || 0;
+                            if (amountInput) amountInput.value = item.amount || 0;
+                            
+                            console.log('Successfully filled item', index + 1);
+                        } else {
+                            console.error('No item row found after addItemRow()');
+                        }
+                    } else {
+                        console.error('addItemRow function not found');
+                    }
+                } catch (error) {
+                    console.error('Error processing item', index + 1, ':', error);
+                }
             });
             
-            // Update totals
-            updateTotals();
+            // Update totals if function exists
+            if (typeof updateTotals === 'function') {
+                updateTotals();
+                console.log('Totals updated');
+            } else {
+                console.warn('updateTotals function not found');
+            }
+        } else {
+            console.log('No items container found or no items to load');
         }
     }
 
